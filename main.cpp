@@ -26,8 +26,7 @@ public:
     // printFirst() outputs "first". Do not change or remove this line.
     printFirst();
 
-    l.unlock();
-    cv_m.cv.notify_one();
+    cv_m.cv.notify_all();
   }
 
   void second(function<void()> printSecond) {
@@ -39,7 +38,7 @@ public:
     printSecond();
 
     l.unlock();
-    cv_m.cv.notify_one();
+    cv_m.cv.notify_all();
   }
 
   void third(function<void()> printThird) {
@@ -50,62 +49,47 @@ public:
     // printThird() outputs "third". Do not change or remove this line.
     printThird();
 
-    l.unlock();
-    cv_m.cv.notify_one();
+    cv_m.cv.notify_all();
   }
 };
 
 void test_funciton() {
-  // ostringstream ss;
-  // mutex ss_mutex;
+  ostringstream ss;
+  mutex ss_mutex;
 
-  // auto printFirst = [&ss, &ss_mutex]() {
-  //   unique_lock l(ss_mutex);
-  //   ss << "first";
-  // };
-  // auto printSecond = [&ss, &ss_mutex]() {
-  //   unique_lock l(ss_mutex);
-  //   ss << "second";
-  // };
-
-  // auto printThird = [&ss, &ss_mutex]() {
-  //   unique_lock l(ss_mutex);
-  //   ss << "third";
-  // };
-
-  auto printFirst = [&]() {
-    cout << "first";
+  auto printFirst = [&ss, &ss_mutex]() {
+    unique_lock l(ss_mutex);
+    ss << "first";
+  };
+  auto printSecond = [&ss, &ss_mutex]() {
+    unique_lock l(ss_mutex);
+    ss << "second";
   };
 
-  auto printSecond = []() {
-    cout << "second";
-  };
-
-  auto printThird = []() {
-    cout << "third";
+  auto printThird = [&ss, &ss_mutex]() {
+    unique_lock l(ss_mutex);
+    ss << "third";
   };
 
   Foo foo{};
 
   auto first = thread([&foo, &printFirst]() { foo.first(printFirst); });
-  auto second = thread([&foo, &printSecond]() { foo.first(printSecond); });
-  auto third = thread([&foo, &printThird]() { foo.first(printThird); });
+  auto second = thread([&foo, &printSecond]() { foo.second(printSecond); });
+  auto third = thread([&foo, &printThird]() { foo.third(printThird); });
 
   first.join();
   second.join();
   third.join();
 
-  // const auto result = ss.str();
-  // const auto cpm_result = string{"firstsecondthird"} == result;
-  // if (!cpm_result)
-  //   cout << result << endl;
-  // assert(cpm_result);
+  const auto result = ss.str();
+  const auto cpm_result = string{"firstsecondthird"} == result;
+  if (!cpm_result)
+    cout << result << endl;
+  assert(cpm_result);
 }
 
 int main(int, char **) {
   for (auto i = 0; i < 100; ++i) {
-    cout << endl;
-    // cout << i << endl;
     test_funciton();
   }
 
