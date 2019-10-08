@@ -38,18 +38,15 @@ public:
     printSecond();
 
     l.unlock();
-    cv_m.cv.notify_all();
+    cv_m.cv.notify_one();
   }
 
   void third(function<void()> printThird) {
     unique_lock l(cv_m.m);
     cv_m.cv.wait(l, [this] { return i == 2; });
-    i = 3;
 
     // printThird() outputs "third". Do not change or remove this line.
     printThird();
-
-    cv_m.cv.notify_all();
   }
 };
 
