@@ -9,5 +9,5 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(print-in-order main.cpp)
-target_compile_options(print-in-order PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(print-in-order PRIVATE -Wall -Wextra -pedantic -Ofast)
 target_link_libraries(print-in-order Threads::Threads)

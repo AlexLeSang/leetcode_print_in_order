@@ -73,13 +73,16 @@ void test_funciton() {
 
   Foo foo{};
 
-  auto first = thread([&foo, &printFirst]() { foo.first(printFirst); });
-  auto second = thread([&foo, &printSecond]() { foo.second(printSecond); });
-  auto third = thread([&foo, &printThird]() { foo.third(printThird); });
+  const auto first =
+      async(launch::async, [&foo, &printFirst]() { foo.first(printFirst); });
+  const auto second =
+      async(launch::async, [&foo, &printSecond]() { foo.second(printSecond); });
+  const auto third =
+      async(launch::async, [&foo, &printThird]() { foo.third(printThird); });
 
-  first.join();
-  second.join();
-  third.join();
+  first.wait();
+  second.wait();
+  third.wait();
 
   const auto result = ss.str();
   const auto cpm_result = string{"firstsecondthird"} == result;
@@ -89,7 +92,7 @@ void test_funciton() {
 }
 
 int main(int, char **) {
-  for (auto i = 0; i < 100; ++i) {
+  for (auto i = 0; i < static_cast<int>(1e4); ++i) {
     test_funciton();
   }
 
